@@ -53,21 +53,28 @@ class MinshinglesCounter:
 
 
 def main():
+    data = []
     mhc = MinshinglesCounter()
-
-    """
-    You may examine content of given files this way (as example):
-
     for path in sys.argv[1:]:
         for doc in DocumentStreamReader(path):
-            print "%s (text length: %d, minhashes: %s)" % (doc.url, len(doc.text), mhc.count(doc.text))
-    """
+            mhc_c = mhc.count(doc.text)
+            data.append((doc.url, mhc_c))
 
-    """
-    Write your actual code here.
-    Good luck!
-    """
-
+    for i in range(len(data)):
+        if data[i][1] is None:
+            continue
+        for j in range(i+1, len(data)):
+            a = data[i][1]
+            b = data[j][1]
+            if b is None or data[i][0] == data[j][0]:
+                continue
+            ok = 0
+            for x in a:
+                if x in b:
+                    ok += 1
+            score = ok/float(ok+2*(20-ok))
+            if score >= 0.75:
+                print ("{} {} {}".format(data[i][0], data[j][0], score))
 
 if __name__ == '__main__':
     main()
