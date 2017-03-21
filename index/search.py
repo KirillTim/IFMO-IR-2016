@@ -21,8 +21,11 @@ def merge(a, b):
 
 if __name__ == '__main__':
     index = pickle.load(open("index_15.p", "rb"))
+    sys.stderr.write("index loaded\n")
+
     for query in sys.stdin:
-        words = [str(i.strip()) for i in query.split('&')]
+        words = [w.strip() for w in query.split('&')]
+        words = [w.decode('utf-8').lower().encode('utf-8') for w in words]
         docs = []
         for w in words:
             if w in index['index']:
@@ -34,9 +37,11 @@ if __name__ == '__main__':
             docs = docs[1:]
             docs[0] = rv
         print (query[:-1])
-        print (len(docs))
         if len(docs) > 0:
+            print (len(docs[0]))
             for d in docs[0]:
                 print(index['urls'][d])
+        else:
+            print (0)
 
 
