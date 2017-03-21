@@ -33,7 +33,10 @@ if __name__ == '__main__':
             rv = merge(docs[0], docs[1])
             docs = docs[1:]
             docs[0] = rv
-        for d in docs[0]:
-            print(index['urls'][d])
+        print (query[:-1])
+        print (len(docs))
+        if len(docs) > 0:
+            for d in docs[0]:
+                print(index['urls'][d])
 
 
