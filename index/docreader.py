@@ -1,9 +1,18 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import argparse
-import document_pb2
-import struct
 import gzip
-import sys
+import re
+import struct
+
+import document_pb2
+
+SPLIT_RGX = re.compile(r'\w+', re.U)
+
+
+def extract_words(text):
+    words = re.findall(SPLIT_RGX, text)
+    return map(lambda s: s.lower(), words)
 
 
 class DocumentStreamReader:
@@ -37,4 +46,5 @@ def parse_command_line():
 if __name__ == '__main__':
     reader = DocumentStreamReader(parse_command_line().files)
     for doc in reader:
-        print "%s\t%d bytes" % (doc.url, len(doc.text))
+        print ("%s\t%d bytes" % (doc.url, len(doc.text)))
+
