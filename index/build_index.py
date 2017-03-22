@@ -37,4 +37,4 @@ if __name__ == '__main__':
         for w, nums in buf.items():
             data['index'][w].append((len(nums), simple9.encode_arr(nums)))
 
-    pickle.dump(data, open("index_15.p", "wb"))
+    pickle.dump(data, open("index_20.p", "wb"))

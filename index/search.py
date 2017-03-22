@@ -21,7 +21,7 @@ def merge(a, b):
     return rv
 
 if __name__ == '__main__':
-    index = pickle.load(open("index_15.p", "rb"))
+    index = pickle.load(open("index_20.p", "rb"))
     sys.stderr.write("index loaded\n")
     encoding = index['encoding']
     for query in sys.stdin:
@@ -34,10 +34,10 @@ if __name__ == '__main__':
                     docs.append(varbyte.vb_decode(index['index'][w]))
                 elif encoding == 'simple9':
                     buffers = index['index'][w]
+                    data = []
                     for sz, buf in buffers:
-                        data = simple9.decode_arr(buf)[:sz]
-                        for d in data:
-                            docs.append(d)
+                        data.append(simple9.decode_arr(buf)[:sz])
+                    docs.append(sum(data, []))  # flatmap
 
         docs = sorted(docs, key=lambda x: len(x))
         while len(docs) > 1 and len(docs[0]) > 0:
