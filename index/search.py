@@ -2,7 +2,8 @@
 import pickle
 import sys
 
-import encoders
+import simple9
+import varbyte
 
 
 def merge(a, b):
@@ -22,14 +23,21 @@ def merge(a, b):
 if __name__ == '__main__':
     index = pickle.load(open("index_15.p", "rb"))
     sys.stderr.write("index loaded\n")
-
+    encoding = index['encoding']
     for query in sys.stdin:
         words = [w.strip() for w in query.split('&')]
         words = [w.decode('utf-8').lower().encode('utf-8') for w in words]
         docs = []
         for w in words:
             if w in index['index']:
-                docs.append(encoders.vb_decode(index['index'][w]))
+                if encoding == 'varbyte':
+                    docs.append(varbyte.vb_decode(index['index'][w]))
+                elif encoding == 'simple9':
+                    buffers = index['index'][w]
+                    for sz, buf in buffers:
+                        data = simple9.decode_arr(buf)[:sz]
+                        for d in data:
+                            docs.append(d)
 
         docs = sorted(docs, key=lambda x: len(x))
         while len(docs) > 1 and len(docs[0]) > 0:

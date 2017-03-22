@@ -23,7 +23,7 @@ def _decode(num):
     return rv
 
 
-def bits_for_num(x):
+def _bits_for_num(x):
     for _, count in reversed(_payload):
         if x < 2 ** count:
             return count
@@ -34,7 +34,7 @@ def _compress_head(nums):
     for i, (bits, sz) in enumerate(_payload):
         cls = len(_payload) - 1 - i
         head = nums[:sz]
-        if all([bits_for_num(x) <= bits for x in head]):
+        if all([_bits_for_num(x) <= bits for x in head]):
             return _encode(cls, head), sz
     return None
 
@@ -49,5 +49,5 @@ def encode_arr(nums):
     return rv
 
 
-def decode_arr(codes):
-    return sum(map(lambda x: _decode(x), codes), [])
+def decode_arr(arr):
+    return sum(map(lambda x: _decode(x), arr), [])
