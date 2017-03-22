@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import pickle
 import sys
+import time
+
+import numpy as np
 
 import simple9
 import varbyte
@@ -21,8 +24,9 @@ def merge(a, b):
     return rv
 
 if __name__ == '__main__':
+    start_time = time.time()
     index = pickle.load(open("index_20.p", "rb"))
-    sys.stderr.write("index loaded\n")
+    sys.stderr.write("index loaded, take {} seconds\n".format(time.time() - start_time))
     encoding = index['encoding']
     for query in sys.stdin:
         words = [w.strip() for w in query.split('&')]
@@ -33,11 +37,15 @@ if __name__ == '__main__':
                 if encoding == 'varbyte':
                     docs.append(varbyte.vb_decode(index['index'][w]))
                 elif encoding == 'simple9':
-                    buffers = index['index'][w]
-                    data = []
-                    for sz, buf in buffers:
-                        data.append(simple9.decode_arr(buf)[:sz])
-                    docs.append(sum(data, []))  # flatmap
+                    compressed_bytes = index['index'][w][0]
+                    urls_count = index['index'][w][1]
+                    ints = np.fromstring(compressed_bytes, dtype=np.dtype(int))
+                    docs.append(simple9.decode_arr(ints)[:urls_count])
+                    # buffers = index['index'][w]
+                    # data = []
+                    # for sz, buf in buffers:
+                    #    data.append(simple9.decode_arr(buf)[:sz])
+                    # docs.append(sum(data, []))  # flatmap
 
         docs = sorted(docs, key=lambda x: len(x))
         while len(docs) > 1 and len(docs[0]) > 0:

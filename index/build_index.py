@@ -1,17 +1,22 @@
 #!/usr/bin/env python
-import sys
 import pickle
+import sys
+import time
+
+import numpy as np
 
 import docreader
 import simple9
 import varbyte
 
 if __name__ == '__main__':
+    test = np.array([1,2,3])
     encoding = sys.argv[1]
     files = sys.argv[2:]
     data = {'encoding': encoding, 'index': {}, 'urls': []}
     reader = docreader.DocumentStreamReader(files)
     buf = dict()  # for simple9
+    start_time = time.time()
     for doc in reader:
         words = set(docreader.extract_words(doc.text))
         data['urls'].append(doc.url.encode('utf-8'))
@@ -26,15 +31,19 @@ if __name__ == '__main__':
             elif encoding == 'simple9':
                 if w in data['index']:
                     buf[w].append(url_pos)
-                    if len(buf[w]) >= 1000:
-                        data['index'][w].append((len(buf), simple9.encode_arr(buf[w])))
-                        buf[w] = []
+                    #if len(buf[w]) >= 1000:
+                    #    data['index'][w].append((len(buf), simple9.encode_arr(buf[w])))
+                    #    buf[w] = []
                 else:
                     buf[w] = [url_pos]
-                    data['index'][w] = []
+                    data['index'][w] = [] #{'buffer': bytes(), 'sizes': []}
 
-    if encoding == 'simple9': # compress rest buffers
+    if encoding == 'simple9':  # compress rest buffers
         for w, nums in buf.items():
-            data['index'][w].append((len(nums), simple9.encode_arr(nums)))
+            compressed_bytes = np.array(simple9.encode_arr(nums)).tostring()
+            data['index'][w] = (compressed_bytes, len(nums))
+            #data['index'][w]
+            #data['index'][w].append((len(nums), simple9.encode_arr(nums)))
 
     pickle.dump(data, open("index_20.p", "wb"))
+    print("take {} seconds".format(time.time() - start_time))
